@@ -9,7 +9,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { red, blue, green} from '@mui/material/colors';
-
+import axios from 'axios';
+import { useEffect } from 'react';
 
 function App() {
 
@@ -44,14 +45,48 @@ function App() {
     createData('Cupcake', 305, 3.7, 67, 4.3),
     createData('Gingerbread', 356, 16.0, 49, 3.9),
   ];
+
+  const [users,setUsers]=React.useState([]);
+  const [user,setUser]=React.useState({
+    id:'',
+    name:''
+  })
+  const[fetchData,setFetchData]=React.useState(false);
+  useEffect(()=>{
+    axios.get('http://localhost:3001/api/users').then((response)=>{
+      const users=response.data.response
+      setUsers(users);
+    }).catch((e)=>{
+      console.log('Error fetching data:', e);
+    });
+  },[fetchData])
+
+  const userInputHndle=(e)=>{
+    const{name,value}=e.target;
+    setUser({
+      ...user,
+      [name]:value
+    }
+    )
+  }
+  const formSubmit=()=>{
+    try {
+      const response=axios.post('http://localhost:3001/api/createUser',user)
+      setUser({id:'',name:''})
+      setFetchData(true);
+      console.log(response.data);
+    } catch (error) {
+      console.log("error message >",error);
+    }
+  }
   
   return (
     <div>
       <p>User Form</p>
-      <TextField id="standard-basic" label="User id" variant="standard" /> <br></br>
-      <TextField id="standard-basic" label="User Name" variant="standard" />
+      <TextField id="standard-basic" label="User id" variant="standard" onChange={userInputHndle} value={user.id} name='id' type='number'/> <br></br>
+      <TextField id="standard-basic" label="User Name" variant="standard" onChange={userInputHndle} value={user.name} name='name'/>
       <br></br><br></br>
-      <Button variant="contained" sx={{backgroundColor:blue[500]}}>Submit</Button>
+      <Button variant="contained" sx={{backgroundColor:blue[500]}} onClick={formSubmit}>Submit</Button>
       <br></br><br></br>
       <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
@@ -65,10 +100,10 @@ function App() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <StyledTableRow key={row.name}>
+          {users.map((row) => (
+            <StyledTableRow key={row.id}>
+              <StyledTableCell >{row.id}</StyledTableCell>
               <StyledTableCell >{row.name}</StyledTableCell>
-              <StyledTableCell >{row.calories}</StyledTableCell>
               <StyledTableCell ><Button variant="contained" sx={{backgroundColor:green[500]}}>Update</Button></StyledTableCell>
               <StyledTableCell ><Button variant="contained" sx={{backgroundColor:red[500]}}>Delete</Button></StyledTableCell>
               
