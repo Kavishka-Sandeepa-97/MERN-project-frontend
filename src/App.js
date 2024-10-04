@@ -33,18 +33,6 @@ function App() {
       border: 0,
     },
   }));
-  
-  function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-  }
-  
-  const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Cupcake', 305, 3.7, 67, 4.3),
-    createData('Gingerbread', 356, 16.0, 49, 3.9),
-  ];
 
   const [users,setUsers]=React.useState([]);
   const [user,setUser]=React.useState({
@@ -85,6 +73,19 @@ function App() {
       console.log("error message >",error);
     }
   }
+
+  const deleteUser= async (id)=>{
+    let user={id};
+    console.log(user);
+    try {
+      const response= await axios.delete('http://localhost:3001/api/deleteUser',{
+        data: { id }})
+      fetchUsers();
+      console.log(response.data);
+    } catch (error) {
+      console.log("error message >",error);
+    }
+  }
   
   return (
     <div>
@@ -111,7 +112,7 @@ function App() {
               <StyledTableCell >{row.id}</StyledTableCell>
               <StyledTableCell >{row.name}</StyledTableCell>
               <StyledTableCell ><Button variant="contained" sx={{backgroundColor:green[500]}}>Update</Button></StyledTableCell>
-              <StyledTableCell ><Button variant="contained" sx={{backgroundColor:red[500]}}>Delete</Button></StyledTableCell>
+              <StyledTableCell ><Button variant="contained" sx={{backgroundColor:red[500]}} onClick={()=>{deleteUser(row.id)}}>Delete</Button ></StyledTableCell>
               
             </StyledTableRow>
           ))}
