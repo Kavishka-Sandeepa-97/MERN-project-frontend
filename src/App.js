@@ -1,4 +1,4 @@
-import { Box, Button, Modal, TextField, Typography } from '@mui/material'
+import { Box, Button, Modal, TextField, Typography } from '@mui/material';
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -13,7 +13,6 @@ import axios from 'axios';
 import { useEffect } from 'react';
 
 function App() {
-
   const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
       backgroundColor: theme.palette.common.black,
@@ -28,24 +27,25 @@ function App() {
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.action.hover,
     },
-    // hide last border
     '&:last-child td, &:last-child th': {
       border: 0,
     },
   }));
 
   const [users, setUsers] = React.useState([]);
-  const [user, setUser] = React.useState({
+  const [user, setUser] = React.useState({ id: '', name: '' });
+  const [open, setOpen] = React.useState(false);
+  const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
+
+  const [selectedUser, setSelectedUser] = React.useState({
     id: '',
-    name: ''
-  })
-  const [open,setOpen]=React.useState(false);
+    name: '',
+  });
 
   const fetchUsers = React.useCallback(async () => {
     try {
       const response = await axios.get('http://localhost:3001/api/users');
-      const users = response.data.response;
-      setUsers(users);
+      setUsers(response.data.response);
     } catch (e) {
       console.log('Error fetching data:', e);
     }
@@ -55,46 +55,50 @@ function App() {
     fetchUsers();
   }, [fetchUsers]);
 
-  const userInputHndle = (e) => {
+  const userInputHandle = (e) => {
     const { name, value } = e.target;
-    setUser({
-      ...user,
-      [name]: value
-    }
-    )
-  }
+    setUser({ ...user, [name]: value });
+  };
+
   const formSubmit = async () => {
-
     try {
-      const response = await axios.post('http://localhost:3001/api/createUser', user)
-
-      setUser({ id: '', name: '' })
+      const response = await axios.post('http://localhost:3001/api/createUser', user);
       if (response) {
-        handleOpen();
+        setUser({ id: '', name: '' });
+        setOpen(true);
+        fetchUsers();
       }
-      fetchUsers();
-      console.log(response.data);
     } catch (error) {
-      console.log("error message >", error);
+      console.log('Error message >', error);
     }
-  }
+  };
 
   const deleteUser = async (id) => {
-    let user = { id };
-    console.log(user);
     try {
-      const response = await axios.delete('http://localhost:3001/api/deleteUser', {
-        data: { id }
-      })
+      await axios.delete('http://localhost:3001/api/deleteUser', { data: { id } });
       fetchUsers();
-      console.log(response.data);
     } catch (error) {
-      console.log("error message >", error);
+      console.log('Error message >', error);
     }
-  }
+  };
 
-  const handleOpen=()=>{setOpen(true)}
-  const handleClose=()=>{setOpen(false)}
+  const updateUser = async () => {
+    try {
+      await axios.put(`http://localhost:3001/api/updateUser`, selectedUser);
+      setOpenUpdateModal(false);
+      fetchUsers();
+    } catch (error) {
+      console.log('Error message >', error);
+    }
+  };
+
+  const handleOpenUpdateModal = (user) => {
+    setSelectedUser(user);
+    setOpenUpdateModal(true);
+  };
+
+  const handleCloseSubmitModal = () => setOpen(false);
+  const handleCloseUpdateModal = () => setOpenUpdateModal(false);
 
   const style = {
     position: 'absolute',
@@ -107,60 +111,108 @@ function App() {
     p: 4,
   };
 
-
-
   return (
     <div>
       <p>User Form</p>
-      <TextField id="standard-basic" label="User id" variant="standard" onChange={userInputHndle} value={user.id} name='id' type='number' /> <br></br>
-      <TextField id="standard-basic" label="User Name" variant="standard" onChange={userInputHndle} value={user.name} name='name' />
-      <br></br><br></br>
-      <Button variant="contained" sx={{ backgroundColor: blue[500] }} onClick={formSubmit}>Submit</Button>
-      <br></br><br></br>
+      <TextField
+        id="standard-basic"
+        label="User id"
+        variant="standard"
+        onChange={userInputHandle}
+        value={user.id}
+        name="id"
+        type="number"
+      />
+      <br />
+      <TextField
+        id="standard-basic"
+        label="User Name"
+        variant="standard"
+        onChange={userInputHandle}
+        value={user.name}
+        name="name"
+      />
+      <br /> <br />
+      <Button variant="contained" sx={{ backgroundColor: blue[500] }} onClick={formSubmit}>
+        Submit
+      </Button>
+      <br /> <br />
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 700 }} aria-label="customized table">
           <TableHead>
             <TableRow>
-              <StyledTableCell>user id</StyledTableCell>
-              <StyledTableCell >Name</StyledTableCell>
-              <StyledTableCell >Update</StyledTableCell>
-              <StyledTableCell >Delete</StyledTableCell>
-
+              <StyledTableCell>User ID</StyledTableCell>
+              <StyledTableCell>Name</StyledTableCell>
+              <StyledTableCell>Update</StyledTableCell>
+              <StyledTableCell>Delete</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {users.map((row) => (
               <StyledTableRow key={row.id}>
-                <StyledTableCell >{row.id}</StyledTableCell>
-                <StyledTableCell >{row.name}</StyledTableCell>
-                <StyledTableCell ><Button variant="contained" sx={{ backgroundColor: green[500] }}>Update</Button></StyledTableCell>
-                <StyledTableCell ><Button variant="contained" sx={{ backgroundColor: red[500] }} onClick={() => { deleteUser(row.id) }}>Delete</Button ></StyledTableCell>
-
+                <StyledTableCell>{row.id}</StyledTableCell>
+                <StyledTableCell>{row.name}</StyledTableCell>
+                <StyledTableCell>
+                  <Button
+                    variant="contained"
+                    sx={{ backgroundColor: green[500] }}
+                    onClick={() => handleOpenUpdateModal(row)}
+                  >
+                    Update
+                  </Button>
+                </StyledTableCell>
+                <StyledTableCell>
+                  <Button
+                    variant="contained"
+                    sx={{ backgroundColor: red[500] }}
+                    onClick={() => deleteUser(row.id)}
+                  >
+                    Delete
+                  </Button>
+                </StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
 
-      
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
+      {/* Submit Success Modal */}
+      <Modal open={open} onClose={handleCloseSubmitModal}>
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            User Adedd Successfully !
+            User Submitted Successfully!
           </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            <Button onClick={handleClose}>close</Button>
-          </Typography>
+          <Button onClick={handleCloseSubmitModal}>Close</Button>
         </Box>
       </Modal>
 
+      {/* Update User Modal */}
+      <Modal open={openUpdateModal} onClose={handleCloseUpdateModal}>
+        <Box sx={style}>
+          <Typography variant="h6">Update User</Typography>
+          <TextField
+            label="User ID"
+            variant="standard"
+            value={selectedUser.id}
+            name="id"
+            type="number"
+            disabled
+          />
+          <TextField
+            label="User Name"
+            variant="standard"
+            onChange={(e) =>
+              setSelectedUser({ ...selectedUser, name: e.target.value })
+            }
+            value={selectedUser.name}
+            name="name"
+          />
+          <Button onClick={handleCloseUpdateModal}>Close</Button>
+          <Button onClick={updateUser}>Save</Button>
+        </Box>
+      </Modal>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
