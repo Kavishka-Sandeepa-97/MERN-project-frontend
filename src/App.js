@@ -51,15 +51,20 @@ function App() {
     id:'',
     name:''
   })
-  const[fetchData,setFetchData]=React.useState(false);
-  useEffect(()=>{
-    axios.get('http://localhost:3001/api/users').then((response)=>{
-      const users=response.data.response
+  
+  const fetchUsers = React.useCallback(async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/users');
+      const users = response.data.response;
       setUsers(users);
-    }).catch((e)=>{
+    } catch (e) {
       console.log('Error fetching data:', e);
-    });
-  },[fetchData])
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const userInputHndle=(e)=>{
     const{name,value}=e.target;
@@ -69,11 +74,12 @@ function App() {
     }
     )
   }
-  const formSubmit=()=>{
+  const formSubmit= async ()=>{
+    
     try {
-      const response=axios.post('http://localhost:3001/api/createUser',user)
+      const response= await axios.post('http://localhost:3001/api/createUser',user)
       setUser({id:'',name:''})
-      setFetchData(true);
+      fetchUsers();
       console.log(response.data);
     } catch (error) {
       console.log("error message >",error);
