@@ -75,7 +75,7 @@ function App() {
 
   const deleteUser = async (id) => {
     try {
-      await axios.delete(process.env.REACT_APP_ENDPOINT+'api/deleteUser', { id:id});
+      await axios.delete(process.env.REACT_APP_ENDPOINT+'api/deleteUser', {data:{id}});
       fetchUsers();
     } catch (error) {
       console.log('Error message >', error);
