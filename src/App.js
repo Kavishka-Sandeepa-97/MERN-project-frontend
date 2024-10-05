@@ -44,7 +44,7 @@ function App() {
 
   const fetchUsers = React.useCallback(async () => {
     try {
-      const response = await axios.get(process.env.REACT_APP_ENDPOIND+'api/users');
+      const response = await axios.get(process.env.REACT_APP_ENDPOINT+'api/users');
       setUsers(response.data.response);
     } catch (e) {
       console.log('Error fetching data:', e);
@@ -62,7 +62,7 @@ function App() {
 
   const formSubmit = async () => {
     try {
-      const response = await axios.post(process.env.REACT_APP_ENDPOIND+'api/createUser', user);
+      const response = await axios.post(process.env.REACT_APP_ENDPOINT+'api/createUser', user);
       if (response) {
         setUser({ id: '', name: '' });
         setOpen(true);
@@ -75,7 +75,7 @@ function App() {
 
   const deleteUser = async (id) => {
     try {
-      await axios.delete(process.env.REACT_APP_ENDPOIND+'api/deleteUser', { id:id});
+      await axios.delete(process.env.REACT_APP_ENDPOINT+'api/deleteUser', { id:id});
       fetchUsers();
     } catch (error) {
       console.log('Error message >', error);
@@ -84,7 +84,7 @@ function App() {
 
   const updateUser = async () => {
     try {
-      await axios.put(process.env.REACT_APP_ENDPOIND+'api/updateUser', selectedUser);
+      await axios.put(process.env.REACT_APP_ENDPOINT+'api/updateUser', selectedUser);
       setOpenUpdateModal(false);
       fetchUsers();
     } catch (error) {
